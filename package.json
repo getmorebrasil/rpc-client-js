@@ -1,7 +1,7 @@
 {
-  "name": "rpc-client",
+  "name": "rpc-client-js",
   "version": "0.0.1",
-  "description": "rpc-client with amqp protocol to getmore-api",
+  "description": "rpc-client with amqp protocol from Getmore",
   "main": "index.js",
   "license": "MIT",
   "author": "getmore services",
@@ -15,6 +15,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.com:getmoredev/zoo/rpc-client.git"
+    "url": "git@github.com:getmorebrasil/rpc-client-js.git"
   }
 }
