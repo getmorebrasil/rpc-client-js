@@ -1,6 +1,6 @@
 {
   "name": "rpc-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "rpc-client with amqp protocol from Getmore",
   "main": "index.js",
   "license": "MIT",
