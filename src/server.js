@@ -38,7 +38,7 @@ module.exports.startServer = async function (urlConnection, queueName, ServerInt
         const { target, params } = JSON.parse(rpcRequest.content.toString());
         let returner = `${target}() is not defined on serverInterface \n`;
         if (typeof ServerInterface[target] === 'function') {
-            returner = await ServerInterface[target](params).catch(err => err);
+            returner = await ServerInterface[target](params || undefined).catch(err => err);
         }
         channel.sendToQueue(rpcRequest.properties.replyTo, Buffer.from(JSON.stringify(returner)), { correlationId: rpcRequest.properties.correlationId });
         channel.ack(rpcRequest);
