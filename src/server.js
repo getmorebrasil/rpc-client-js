@@ -22,7 +22,7 @@ module.exports.startServer = async function (urlConnection, queueName, ServerInt
     ServerInterfaceClientCache = ServerInterfaceClient;
     ServerInterface = { ...ServerInterfaceClient(), ...ServerInterface };
     const connection = await amqp.connect(urlConnection).catch(e => {
-        return false;
+        throw new Error('Unable to connect the queue server');
     });
     process.once('SIGINT', function () { connection.close(); });
     const channel = await connection.createChannel();
