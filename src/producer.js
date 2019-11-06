@@ -28,7 +28,7 @@ const conn = async (urlConnection, assertQueueName) => {
     return connection;
 };
 
-module.exports.connectionClient = conn;
+module.exports.connectionProducer = conn;
 
 const consumer = async (n, options = {}) => {
     const channel = await connection.createChannel();

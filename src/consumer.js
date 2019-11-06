@@ -1,9 +1,9 @@
 const amqp = require('amqplib');
 
-let ServerInterfaceClientCache;
+let ServerInterfaceProducerCache;
 let ServerInterface = {
     async getHandlers() /*getHandles(): Array<Signature> */ {
-        const handlers = ServerInterfaceClientCache.valueOf().toString().match(/\/\*.+\*\//g).map(definition => definition.replace(/[\/\*\\*\/]/g, '').trim());
+        const handlers = ServerInterfaceProducerCache.valueOf().toString().match(/\/\*.+\*\//g).map(definition => definition.replace(/[\/\*\\*\/]/g, '').trim());
         const handlersJoined = handlers.join(';');
         const signatures = Object.entries(this).map(entrie => {
             if (handlersJoined.indexOf(entrie[0]) === -1) {
@@ -18,9 +18,9 @@ let ServerInterface = {
     }
 }
 
-module.exports.startServer = async function (urlConnection, queueName, ServerInterfaceClient) {
-    ServerInterfaceClientCache = ServerInterfaceClient;
-    ServerInterface = { ...ServerInterfaceClient(), ...ServerInterface };
+module.exports.startServer = async function (urlConnection, queueName, ServerInterfaceProducer) {
+    ServerInterfaceProducerCache = ServerInterfaceProducer;
+    ServerInterface = { ...ServerInterfaceProducer(), ...ServerInterface };
     const connection = await amqp.connect(urlConnection).catch(e => {
         throw new Error('Unable to connect the queue server');
     });
