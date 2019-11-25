@@ -11,9 +11,13 @@ const { Handler, connectionProducer } = require('../producer');
     Handler.bar = async str => { };
 
     const target = 'foo';
-    const getFoo = await Handler[target]({ notMarried: true, age: 22, name: 'balde' }, { return: 'String' });
-    console.log(getFoo);
-
+    const resp = await Promise.all([
+        Handler[target]({ notMarried: true, age: 22, name: 'balde' }, { return: 'String' }),
+        Handler[target]({ notMarried: true, age: 22, name: 'balde' }, { return: 'String' }),
+        Handler[target]({ notMarried: true, age: 22, name: 'balde' }, { return: 'String' }),
+        Handler[target]({ notMarried: true, age: 22, name: 'balde' }, { return: 'String' })
+    ]);
+    console.log(resp);
     connection.close();
 })()
 

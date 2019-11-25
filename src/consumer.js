@@ -18,31 +18,33 @@ let ServerInterface = {
     }
 }
 
-module.exports.startServer = async function (urlConnection, queueName, ServerInterfaceProducer) {
+module.exports.startConsumer = async function (urlConnection, queueName, ServerInterfaceProducer) {
     ServerInterfaceProducerCache = ServerInterfaceProducer;
     ServerInterface = { ...ServerInterfaceProducer(), ...ServerInterface };
-    const connection = await amqp.connect(urlConnection).catch(e => {
+    return amqp.connect(urlConnection).then(function (connection) {
+        process.once('SIGINT', function () { connection.close(); });
+        return connection.createChannel().then(function (channel) {
+            channel.assertQueue(queueName, { durable: false });
+            channel.prefetch(1);
+            let ok = channel.assertQueue(queueName, { durable: false });
+            ok = ok.then(function (_qok) {
+                return channel.consume(queueName, async function (rpcRequest) {
+                    channel.ack(rpcRequest);
+                    const { target, params } = JSON.parse(rpcRequest.content.toString());
+                    let returner = `${target}() is not defined on serverInterface \n`;
+                    if (typeof ServerInterface[target] === 'function') {
+                        returner = await ServerInterface[target](params || undefined).catch(err => err);
+                    }
+                    channel.sendToQueue(rpcRequest.properties.replyTo, Buffer.from(JSON.stringify(returner)), { correlationId: rpcRequest.properties.correlationId });
+                });
+            });
+
+            return ok.then(function (_consumeOk) {
+                console.log(` [x] Awaiting RPC requests from queue ${queueName}`);
+                return true;
+            });
+        });
+    }).catch(e => {
         throw new Error('Unable to connect the queue server');
     });
-    process.once('SIGINT', function () { connection.close(); });
-    const channel = await connection.createChannel();
-
-    await channel.assertQueue(queueName, { durable: false });
-
-    channel.prefetch(1);
-    await channel.consume(queueName, reply);
-
-    console.log(` [x] Awaiting RPC requests from queue ${queueName}`);
-
-    async function reply(rpcRequest) {
-        const { target, params } = JSON.parse(rpcRequest.content.toString());
-        let returner = `${target}() is not defined on serverInterface \n`;
-        if (typeof ServerInterface[target] === 'function') {
-            returner = await ServerInterface[target](params || undefined).catch(err => err);
-        }
-        channel.sendToQueue(rpcRequest.properties.replyTo, Buffer.from(JSON.stringify(returner)), { correlationId: rpcRequest.properties.correlationId });
-        channel.ack(rpcRequest);
-    }
-
-    return true;
 }

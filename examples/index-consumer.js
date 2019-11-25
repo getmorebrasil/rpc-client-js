@@ -8,4 +8,4 @@ startConsumer(host, queueName, interfaceRpc).then((e) => {
     console.log(e);
 });
 
-module.exports.Server;
+module.exports.Consumer;

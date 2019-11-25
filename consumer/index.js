@@ -1,3 +1,3 @@
-const { startServer } = require('../src/consumer');
+const { startConsumer } = require('../src/consumer');
 
-module.exports = startServer;
+module.exports = startConsumer;
