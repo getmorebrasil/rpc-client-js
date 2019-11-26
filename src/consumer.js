@@ -25,7 +25,6 @@ module.exports.startConsumer = async function (urlConnection, queueName, ServerI
         process.once('SIGINT', function () { connection.close(); });
         return connection.createChannel().then(function (channel) {
             channel.assertQueue(queueName, { durable: false });
-            channel.prefetch(1);
             let ok = channel.assertQueue(queueName, { durable: false });
             ok = ok.then(function (_qok) {
                 return channel.consume(queueName, async function (rpcRequest) {
