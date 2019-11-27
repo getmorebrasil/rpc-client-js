@@ -18,13 +18,14 @@ let ServerInterface = {
     }
 }
 
-module.exports.startConsumer = async function (urlConnection, queueName, ServerInterfaceProducer) {
+module.exports.startConsumer = async function (urlConnection, queueName, ServerInterfaceProducer, options = {}) {
     ServerInterfaceProducerCache = ServerInterfaceProducer;
     ServerInterface = { ...ServerInterfaceProducer(), ...ServerInterface };
     return amqp.connect(urlConnection).then(function (connection) {
         process.once('SIGINT', function () { connection.close(); });
         return connection.createChannel().then(function (channel) {
             channel.assertQueue(queueName, { durable: false });
+            options.prefetch && channel.prefetch(options.prefetch);
             let ok = channel.assertQueue(queueName, { durable: false });
             ok = ok.then(function (_qok) {
                 return channel.consume(queueName, async function (rpcRequest) {
